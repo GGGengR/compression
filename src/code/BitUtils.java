@@ -1,38 +1,6 @@
 package code;
 
 public class BitUtils {
-//	public static void bitWrite(byte[] code,int number ){
-//		int index =0;
-//		int length = Utils.binary_length(number);
-//		if(number == 0 ){
-//			length = 1;
-//			if(pos < 8){
-//				code[outpos] = (byte) (code[outpos] << 1);
-//				pos += 1;
-//				}
-//			else{
-//				outpos += 1;
-//				code[outpos] = (byte) (code[outpos] << 1) ;
-//				pos = 1;
-//				}	
-//			return ;
-//		}
-//		while(number != 0){
-//			index = 8-pos;
-//			if(length < index){
-//				code[outpos] = (byte) (code[outpos] << length | number);
-//				pos = pos + length;
-//				number = 0;
-//				}
-//			else{
-//				code[outpos] = (byte) (code[outpos] << index | number >> length-index) ;
-//				outpos ++;
-//				pos = 0;
-//				number = number - ((number >> length-index) << length-index);
-//				length = length - index ; 
-//				}	
-//			}
-//	}
 	public static void bitWrite(byte[] code,int number ){
 		int index =0;
 		int length = Utils.binary_length(number);
@@ -89,16 +57,17 @@ public class BitUtils {
 				offset = (1<<length)-1 ;
 				number |= code[outpos] >> index-length & offset;
 				pos = pos + length;
-//				System.out.println("------------");
 				return number;
 				}
 			else{
 				offset = (1<<index)-1;
-				number = code[outpos++] & offset;
+				number |= code[outpos++] & offset;
 				pos = 0;
-				number = number << length-index;
+				if(length-index >8)
+					number = number << 8;
+				else
+					number = number << length-index;
 				length = length - index ; 
-//				System.out.println("2");
 				}	
 			}
 		return number;

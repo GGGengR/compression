@@ -10,6 +10,7 @@ public class Gamma {
 		code = Unary.Encode(length);
 		int offset = Utils.removeMSB(number);
 		code = code << length-1 | offset;
+//		System.out.println(Integer.toBinaryString(code));
 		BitUtils.bitWrite(output, code);
 	}
 	public static int Encode(int number){

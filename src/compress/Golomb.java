@@ -8,7 +8,6 @@ public class Golomb {
 		int code = 0;
 		int offset = 0;
 		int length = 0;
-		int r_length = 0;
 		int q = number / m;
 		int r = number % m;
 		code = Unary.Encode(q);

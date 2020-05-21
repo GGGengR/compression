@@ -1,115 +1,194 @@
 package code;
 
-import java.io.*;
-import code.BitUtils;
+import java.util.Arrays;
 
+import compress.Delta;
 import compress.Gamma;
+import compress.Golomb;
+import compress.Rice;
+import compress.Interpolative;
 
 public class compression {
 	public static void main(String[] args) {
-		int[][] input = Datatest.creat();      //input[5][65535]
+		int[][] input = Datatest.creat();      //input[5][50]
 		byte[][] output = new byte[input.length][input[0].length * 4];
+		int[][] doc_id = new int[input.length][input[0].length];
+//		int[][] doc_id = input;
+		int[][] number = new int[input.length][input[0].length];
 		for(int i = 0 ; i < input.length ; i++){
-			int code = 0;
-			int m = 4;
 			int inpos = 0;
-//			int outpos = 0;
-//			int pos = 0;
-			for(inpos = inpos; inpos < input[0].length;inpos++){
-				Gamma.Encode(input[i][inpos],output[i]);
-			}
-			System.out.print(BitUtils.bitRead(output[i], output[i].length));
+			int m = 4;
+//			doc_id[i] = input[i];
+//			Utils.print(doc_id[i]);
+			for(int j = input[i].length-1;j > 0;j--)
+				doc_id[i][j] = input[i][j] - input[i][j-1];          // doc_id
+			doc_id[i][0]=input[i][0];
+			//////////////////////////////////////////////////////////////////Gamma code
+			Gamma(doc_id[i],output[i],number[i]);
+			////////////////////////////////////////////////////////////////////Delta code
+			Delta(doc_id[i],output[i],number[i]);
+			///////////////////////////////////////////////////////////////////////Golomb code
+			Golomb(doc_id[i],output[i],number[i]);
+			///////////////////////////////////////////////////////////////////////Rice code
+			Rice(doc_id[i],output[i],number[i]);
+			////////////////////////////////////////////////////////////////////////Interpolative code
+			Interpolative(input[i],output[i],number[i]);
 		}
 	}
-//	public static void main(String[] args) {
-//		int[][] input = Datatest.creat();      //input[5][65535]
-//		InputStream is=System.in;
-//		int m = 4;    //Golomb Rice m;
-//		int index = 0;
-//		int compression_id = 0 ;
-//		int[] num;
-//		String fileName = "";
-//		String file_con ="";
-//		String code = "";
-//		try {
-//			BufferedReader bre=new BufferedReader(new InputStreamReader(is));
-//		while (true) {
-//			String str= bre.readLine();
-//			if(str.equalsIgnoreCase("exit")||str.isEmpty())
-//				break;
-//			index = str.indexOf(" ");
-//			compression_id = Integer.parseInt(str.substring(0,index));
-//			fileName = str.substring(index+1);
-//			file_con = FileUtil.read(fileName);
-//			switch(compression_id) {
-//			case 1:
-//				num = Util.StringtoNumarray(file_con);
-//				for(int i =0;i<num.length;i++) 
-//					code += Gamma.Encode(num[i]);
-//				FileUtil.write(code, fileName.substring(0,fileName.indexOf("."))+"_GammaEncode"+fileName.substring(fileName.indexOf(".")));
-//				break;
-//			case 2:
-//				num = Util.StringtoNumarray(file_con);
-//				for(int i =0;i<num.length;i++) 
-//					code += Delta.Encode(num[i]);
-//				FileUtil.write(code, fileName.substring(0,fileName.indexOf("."))+"_DeltaEncode"+fileName.substring(fileName.indexOf(".")));
-//				break;
-//			case 3:
-//				num = Util.StringtoNumarray(file_con);
-//				for(int i =0;i<num.length;i++) 
-//					code += Golomb.Encode(num[i],m);
-//				FileUtil.write(code, fileName.substring(0,fileName.indexOf("."))+"_GolombEncode"+fileName.substring(fileName.indexOf(".")));
-//				break;
-//			case 4:
-//				num = Util.StringtoNumarray(file_con);
-//				for(int i =0;i<num.length;i++) 
-//					code += Rice.Encode(num[i],m);
-//				FileUtil.write(code, fileName.substring(0,fileName.indexOf("."))+"_RiceEncode"+fileName.substring(fileName.indexOf(".")));
-//				break;
-//			case 5:
-//				num = Util.StringtoNumarray(file_con);
-//				System.out.println("请输入最小值：");
-//				int lo = Integer.parseInt(bre.readLine());
-//				System.out.println("请输入最大值：");
-//				int hi = Integer.parseInt(bre.readLine());
-//				Interpolative.s = Interpolative.Encode(num, num.length, lo, hi);
-//				FileUtil.write(Unary.Encode(num.length)+Interpolative.s, fileName.substring(0,fileName.indexOf("."))+"_InterpolativeEncode"+fileName.substring(fileName.indexOf(".")));
-//				break;
-//			case 11:
-//				code = Gamma.Decode(file_con);
-//				num = Util.StringtoNumarray(code);
-//				FileUtil.write(num, fileName.replace("En", "De"));
-//				break;
-//			case 22:
-//				code = Delta.Decode(file_con);
-//				num = Util.StringtoNumarray(code);
-//				FileUtil.write(num, fileName.replace("En", "De"));
-//				break;
-//			case 33:
-//				code = Golomb.Decode(file_con,m);
-//				num = Util.StringtoNumarray(code);
-//				FileUtil.write(num, fileName.replace("En", "De"));
-//				break;
-//			case 44:
-//				code = Rice.Decode(file_con,m);
-//				num = Util.StringtoNumarray(code);
-//				FileUtil.write(num, fileName.replace("En", "De"));
-//				break;
-//			case 55:
-//				index = file_con.indexOf("0");
-//				Interpolative.s = file_con.substring(index+1);
-//				System.out.println("请输入最小值：");
-//				int low = Integer.parseInt(bre.readLine());
-//				System.out.println("请输入最大值：");
-//				int high = Integer.parseInt(bre.readLine());
-//				code = Interpolative.Decode(index+1,low,high);
-//				num = Util.StringtoNumarray(code);
-//				FileUtil.write(num, fileName.replace("En", "De"));
-//				break;
-//			}
-//		}
-//		}catch(IOException e) {
-//			System.out.println(e);
-//		}
-//	}
+	public static void Gamma(int[] input,byte[] output,int[] number){
+		BitUtils.pos=0;
+		BitUtils.outpos=0;
+		int inpos = 0;
+		for(inpos = 0; inpos < input.length;inpos++){
+			Gamma.Encode(input[inpos],output);
+		}
+		output[BitUtils.outpos] <<= 8-BitUtils.pos;
+		System.out.println("Gamma编码性能："+8*BitUtils.outpos+"  Bits");
+		BitUtils.pos=0;
+		BitUtils.outpos=0;
+		BitUtils.inpos = 0;
+		while(BitUtils.outpos < output.length){
+			number[BitUtils.inpos++]=Gamma.Decode(output);
+			if(BitUtils.bitRead(output, 1)==0)
+				break;
+			else
+				if(BitUtils.pos == 0){
+					BitUtils.outpos--;
+					BitUtils.pos=8;
+				}else
+					BitUtils.pos--;		
+		}
+		System.out.println("Gamma解码完成,如有解码错误信息，将在下方显示。");
+		System.out.println();
+		for(int j = 0;j< number.length;j++){
+			if(number[j] != input[j])
+				System.out.println("WRONG"+j+" "+number[j] +" "+ input[j]);
+		}
+		System.out.println();
+	}
+	public static void Delta(int[] input,byte[] output,int[] number){
+		BitUtils.pos=0;
+		BitUtils.outpos=0;
+		int inpos = 0;
+		for(inpos = 0; inpos < input.length;inpos++){
+			Delta.Encode(input[inpos],output);
+		}
+		output[BitUtils.outpos] <<= 8-BitUtils.pos;
+		System.out.println("Delta编码性能："+8*BitUtils.outpos+"  Bits");
+		BitUtils.pos=0;
+		BitUtils.outpos=0;
+		BitUtils.inpos = 0;
+		while(BitUtils.outpos < output.length){
+			number[BitUtils.inpos++]=Delta.Decode(output);
+			if(BitUtils.bitRead(output, 1)==0)
+				break;
+			else
+				if(BitUtils.pos == 0){
+					BitUtils.outpos--;
+					BitUtils.pos=8;
+				}else
+					BitUtils.pos--;		
+		}
+		System.out.println("Delta解码完成,如有解码错误信息，将在下方显示。");
+		System.out.println();
+		for(int j = 0;j< number.length;j++){
+			if(number[j] != input[j])
+				System.out.println("WRONG"+j+" "+number[j] +" "+ input[j]);
+		}
+		System.out.println();
+	}
+	public static void Golomb(int[] input,byte[] output,int[] number){
+		BitUtils.pos=0;
+		BitUtils.outpos=1;
+		int inpos = 0;
+		int m = 4;
+		output[0]=(byte) m;
+		for(inpos = 0; inpos < input.length;inpos++){
+			Golomb.Encode(input[inpos],m,output);
+		}
+		output[BitUtils.outpos] <<= 8-BitUtils.pos;
+		output[BitUtils.outpos] |= (1<<8-BitUtils.pos )- 1;
+		System.out.println("Golomb编码性能："+8*BitUtils.outpos+"  Bits");
+		byte[] code = Arrays.copyOf(output, BitUtils.outpos+1);
+		int n = code[0];
+		int num = 0;
+		BitUtils.pos=0;
+		BitUtils.outpos=1;
+		BitUtils.inpos = 0;
+		while(inpos < 65535){
+			num=Golomb.Decode(code,n);
+			number[BitUtils.inpos++] = num;
+		}
+		System.out.println("Golomb解码完成,如有解码错误信息，将在下方显示。");
+		System.out.println();
+		for(int j = 0;j< number.length;j++){
+			if(number[j] != input[j])
+				System.out.println("WRONG"+j+" "+number[j] +" "+ input[j]);
+		}
+		System.out.println();
+	}
+	public static void Rice(int[] input,byte[] output,int[] number){
+		BitUtils.pos=0;
+		BitUtils.outpos=1;
+		int inpos = 0;
+		int m = 4;
+		output[0]=(byte) m;
+		for(inpos = 0; inpos < input.length;inpos++){
+			Rice.Encode(input[inpos],m,output);
+		}
+		output[BitUtils.outpos] <<= 8-BitUtils.pos;
+		output[BitUtils.outpos] |= (1<<8-BitUtils.pos )- 1;
+		System.out.println("Rice编码性能："+8*BitUtils.outpos+"  Bits");
+		byte[] code = Arrays.copyOf(output, BitUtils.outpos+1);
+		int n = code[0];
+		int num = 0;
+		BitUtils.pos=0;
+		BitUtils.outpos=1;
+		BitUtils.inpos = 0;
+		while(inpos < 65535){
+			num=Rice.Decode(code,n);
+			number[BitUtils.inpos++] = num;
+		}
+		System.out.println("Rice解码完成,如有解码错误信息，将在下方显示。");
+		System.out.println();
+		for(int j = 0;j< number.length;j++){
+			if(number[j] != input[j])
+				System.out.println("WRONG"+j+" "+number[j] +" "+ input[j]);
+		}
+		System.out.println();
+	}
+	public static void Interpolative(int[] input,byte[] output,int[] number){
+		int high = Datatest.max;
+		int low = 1;
+		int amount = Datatest.amount;
+		output[0] = (byte) Utils.binary_length(high);
+		BitUtils.pos=0;
+		BitUtils.outpos=1;
+		BitUtils.bitWrite(output, high);
+		output[BitUtils.outpos] <<= 8-BitUtils.pos;
+		BitUtils.pos=0;
+		BitUtils.outpos=5;
+		Interpolative.Encode(input,amount,low,high,output);
+		output[BitUtils.outpos] <<= 8-BitUtils.pos;
+		System.out.println("Interpolative编码性能："+8*BitUtils.outpos+"  Bits");
+		int length = output[0];
+		BitUtils.pos=0;
+		BitUtils.outpos=1;
+		int high_read = BitUtils.bitRead(output, length);
+		BitUtils.pos=0;
+		BitUtils.outpos=5;
+		BitUtils.inpos = 0;
+		while(true){
+			Interpolative.Decode(Datatest.amount, 1, high_read, number, output);
+			Arrays.sort(number);
+			break;
+		}
+		System.out.println("Interpolative解码完成,如有解码错误信息，将在下方显示。");
+		System.out.println();
+		for(int j = 0;j< number.length;j++){
+			if(number[j] != input[j])
+				System.out.println("WRONG"+j+" "+number[j] +" "+ input[j]);
+		}
+		System.out.println();
+	}
 }

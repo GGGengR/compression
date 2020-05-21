@@ -60,7 +60,4 @@ public class Utils {
 		for(int i = 0;i<number.length;i++)
 			System.out.println(number[i]);
 	}
-//	public static void quicksort(int[] number,int low,int high){
-//		
-//	}
 }

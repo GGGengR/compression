@@ -1,10 +1,7 @@
 package code;
 
 import java.util.Arrays;
-
-import code.IntWrapper;
 import code.Utils;
-import code.test2;
 import compress.Unary;
 import compress.Delta;
 import compress.Gamma;
@@ -83,10 +80,9 @@ public class test {
 //		System.out.println(Integer.toBinaryString(code[1]));
 //		System.out.print(Integer.toBinaryString(num));
 		
-		
 //		BitUtils.pos=0;
 //		BitUtils.outpos=0;
-//		int[] num = new int[]{2,5,4,7,8,9,6};
+//		int[] num = new int[]{0,1,4,7,8,9,6};
 //		byte[] output = new byte[28];
 //		for(int i = 0;i<num.length;i++){
 //			Gamma.Encode(num[i], output);
@@ -109,7 +105,6 @@ public class test {
 //		while(BitUtils.outpos<5){
 //			System.out.println(Gamma.Decode(code));
 //		}
-//	}
 //		System.out.println(Gamma.Decode(57));
 //		System.out.println(Integer.toBinaryString(57));
 		
@@ -212,37 +207,43 @@ public class test {
 //			System.out.println(numb);
 //		}
 		
-		int[] num = new int[]{2,4,7,12,13,14,17};
-		byte[] output = new byte[28];
-		int m = 4;
-		BitUtils.pos=0;
-		BitUtils.outpos=1;
-		output[0]=(byte) m;
-		Interpolative.Encode(num, 7, 1, 20, output);
-		output[BitUtils.outpos] <<= 8-BitUtils.pos;
-//		output[BitUtils.outpos] |= (1<<8-BitUtils.pos )- 1;
-		for(int i = 0;i<=BitUtils.outpos;i++){
-			System.out.print(output[i]>>7 & 1);
-			System.out.print(output[i]>>6 & 1);
-			System.out.print(output[i]>>5 & 1);
-			System.out.print(output[i]>>4 & 1);
-			System.out.print(output[i]>>3 & 1);
-			System.out.print(output[i]>>2 & 1);
-			System.out.print(output[i]>>1 & 1);
-			System.out.print(output[i] & 1);
-			System.out.println();
-		}
-		byte[] code = Arrays.copyOf(output, BitUtils.outpos+1);
-		int n = code[0];
-		BitUtils.pos=0;
-		BitUtils.outpos=1;
-		int[] numarray = new int[7];
-		while(BitUtils.outpos<5){
-			BitUtils.inpos = 0;
-			Interpolative.Decode(7, 1, 20, numarray, code);
-			Arrays.sort(numarray);
-			Utils.print(numarray);
-			break;
-		}
+//		int[] num = new int[]{2,4,7,12,13,14,17};
+//		byte[] output = new byte[28];
+//		int m = 4;
+//		BitUtils.pos=0;
+//		BitUtils.outpos=1;
+//		output[0]=(byte) m;
+//		Interpolative.Encode(num, 7, 1, 20, output);
+//		output[BitUtils.outpos] <<= 8-BitUtils.pos;
+////		output[BitUtils.outpos] |= (1<<8-BitUtils.pos )- 1;
+//		for(int i = 0;i<=BitUtils.outpos;i++){
+//			System.out.print(output[i]>>7 & 1);
+//			System.out.print(output[i]>>6 & 1);
+//			System.out.print(output[i]>>5 & 1);
+//			System.out.print(output[i]>>4 & 1);
+//			System.out.print(output[i]>>3 & 1);
+//			System.out.print(output[i]>>2 & 1);
+//			System.out.print(output[i]>>1 & 1);
+//			System.out.print(output[i] & 1);
+//			System.out.println();
+//		}
+//		byte[] code = Arrays.copyOf(output, BitUtils.outpos+1);
+//		int n = code[0];
+//		BitUtils.pos=0;
+//		BitUtils.outpos=1;
+//		int[] numarray = new int[7];
+//		while(BitUtils.outpos<5){
+//			BitUtils.inpos = 0;
+//			Interpolative.Decode(7, 1, 20, numarray, code);
+//			Arrays.sort(numarray);
+//			Utils.print(numarray);
+//			break;
+//		}
+		int k =1;
+		int[][] input = Datatest.creat();      //input[5][50]
+		for(int i = 0;i<5;i++)
+			for(int j = 0;j<input[i].length;j++)
+				if(input[i][j] - input[i][j++] ==1)
+					System.out.print(k++);
 	}
 }
