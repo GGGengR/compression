@@ -31,20 +31,11 @@ public class Interpolative {
 		int f2 = f-h;    //后面有几个
 		int hi1 = hi-f2-lo-f1;           //中间的范围
 		int length = Utils.binary_length(hi1);
+		if(hi1 ==0)
+			length = 0;
 		int number = BitUtils.bitRead(code, length);
 		number += lo+f1;
-		numarray[h-1] = number;
-		String hi1_binary = Integer.toBinaryString(hi1);
-		String s1 = "";
-//		int num = 0;
-//		if(lo !=hi) {
-//			s1 = Interpolative.s.substring(0,hi1_binary.length());
-//			num = Integer.parseInt(s1,2) ;
-//			Interpolative.s = Interpolative.s.substring(hi1_binary.length());
-//		}
-//		num +=  lo+f1;
-//		String s = num+"";
-//		return Interpolative.Decode(f1, lo, num-1) + s +" "+Interpolative.Decode(f2, num+1,hi);	
+		numarray[BitUtils.inpos++] = number;
 		Interpolative.Decode(f1, lo, number-1,numarray,code);
 		Interpolative.Decode(f2, number+1,hi,numarray,code);
 	}

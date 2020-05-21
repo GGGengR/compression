@@ -105,4 +105,5 @@ public class BitUtils {
 	}
 	public static int pos;
 	public static int outpos;
+	public static int inpos;
 }

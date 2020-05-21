@@ -219,7 +219,7 @@ public class test {
 		BitUtils.outpos=1;
 		output[0]=(byte) m;
 		Interpolative.Encode(num, 7, 1, 20, output);
-//		output[BitUtils.outpos] <<= 8-BitUtils.pos;
+		output[BitUtils.outpos] <<= 8-BitUtils.pos;
 //		output[BitUtils.outpos] |= (1<<8-BitUtils.pos )- 1;
 		for(int i = 0;i<=BitUtils.outpos;i++){
 			System.out.print(output[i]>>7 & 1);
@@ -232,14 +232,17 @@ public class test {
 			System.out.print(output[i] & 1);
 			System.out.println();
 		}
-//		byte[] code = Arrays.copyOf(output, BitUtils.outpos+1);
-//		int n = code[0];
-//		BitUtils.pos=0;
-//		BitUtils.outpos=1;
-////		int i = 1;
-//		while(BitUtils.outpos<6){
-//			int numb = Rice.Decode(code,n);
-//			System.out.println(numb);
-//		}
+		byte[] code = Arrays.copyOf(output, BitUtils.outpos+1);
+		int n = code[0];
+		BitUtils.pos=0;
+		BitUtils.outpos=1;
+		int[] numarray = new int[7];
+		while(BitUtils.outpos<5){
+			BitUtils.inpos = 0;
+			Interpolative.Decode(7, 1, 20, numarray, code);
+			Arrays.sort(numarray);
+			Utils.print(numarray);
+			break;
+		}
 	}
 }

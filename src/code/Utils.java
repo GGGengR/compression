@@ -56,4 +56,11 @@ public class Utils {
 		boolean bool = (number&(number-1)) == 0;
 		return bool;
 	}
+	public static void print(int[] number){
+		for(int i = 0;i<number.length;i++)
+			System.out.println(number[i]);
+	}
+//	public static void quicksort(int[] number,int low,int high){
+//		
+//	}
 }
