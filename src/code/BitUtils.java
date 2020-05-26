@@ -6,6 +6,11 @@ public class BitUtils {
 		int length = Utils.binary_length(number);
 		while(length != 0){
 			index = 8-pos;
+			if(index ==0){
+				pos =0;
+				outpos+=1;
+				index = 8-pos;
+			}
 			if(length < index){
 				code[outpos] = (byte) (code[outpos] << length | number);
 				pos = pos + length;
@@ -13,8 +18,7 @@ public class BitUtils {
 				}
 			else{
 				code[outpos] = (byte) (code[outpos] << index | number >> length-index) ;
-				outpos ++;
-				pos = 0;
+				pos = 8;
 				number = number - ((number >> length-index) << length-index);
 				length = length - index ; 
 				}	
@@ -25,6 +29,11 @@ public class BitUtils {
 		int index =0;
 		while(length != 0){
 			index = 8-pos;
+			if(index ==0){
+				pos =0;
+				outpos+=1;
+				index = 8-pos;
+			}
 			if(length < index){
 				code[outpos] = (byte) (code[outpos] << length | number);
 				pos = pos + length;
@@ -32,8 +41,7 @@ public class BitUtils {
 				}
 			else{
 				code[outpos] = (byte) (code[outpos] << index | number >> length-index) ;
-				outpos ++;
-				pos = 0;
+				pos = 8;
 				number = number - ((number >> length-index) << length-index);
 				length = length - index ; 
 				}	

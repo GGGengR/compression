@@ -239,11 +239,13 @@ public class test {
 //			Utils.print(numarray);
 //			break;
 //		}
-		int k =1;
-		int[][] input = Datatest.creat();      //input[5][50]
-		for(int i = 0;i<5;i++)
-			for(int j = 0;j<input[i].length;j++)
-				if(input[i][j] - input[i][j++] ==1)
-					System.out.print(k++);
+//		int k =1;
+//		int[][] input = Datatest.creat();      //input[5][50]
+//		for(int i = 0;i<5;i++)
+//			for(int j = 0;j<input[i].length;j++)
+//				if(input[i][j] - input[i][j++] ==1)
+//					System.out.print(k++);
+		byte[] code = new byte[24];
+		BitUtils.bitWrite(code, 1024);
 	}
 }

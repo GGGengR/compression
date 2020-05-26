@@ -12,25 +12,20 @@ public class compression {
 	public static void main(String[] args) {
 		int[][] input = Datatest.creat();      //input[5][50]
 		byte[][] output = new byte[input.length][input[0].length * 4];
-		int[][] doc_id = new int[input.length][input[0].length];
-//		int[][] doc_id = input;
+		int[][] d_gap = new int[input.length][input[0].length];
 		int[][] number = new int[input.length][input[0].length];
 		for(int i = 0 ; i < input.length ; i++){
-			int inpos = 0;
-			int m = 4;
-//			doc_id[i] = input[i];
-//			Utils.print(doc_id[i]);
 			for(int j = input[i].length-1;j > 0;j--)
-				doc_id[i][j] = input[i][j] - input[i][j-1];          // doc_id
-			doc_id[i][0]=input[i][0];
+				d_gap[i][j] = input[i][j] - input[i][j-1];          // d-gap
+			d_gap[i][0]=input[i][0];
 			//////////////////////////////////////////////////////////////////Gamma code
-			Gamma(doc_id[i],output[i],number[i]);
+			Gamma(d_gap[i],output[i],number[i]);
 			////////////////////////////////////////////////////////////////////Delta code
-			Delta(doc_id[i],output[i],number[i]);
+			Delta(d_gap[i],output[i],number[i]);
 			///////////////////////////////////////////////////////////////////////Golomb code
-			Golomb(doc_id[i],output[i],number[i]);
+			Golomb(d_gap[i],output[i],number[i]);
 			///////////////////////////////////////////////////////////////////////Rice code
-			Rice(doc_id[i],output[i],number[i]);
+			Rice(d_gap[i],output[i],number[i]);
 			////////////////////////////////////////////////////////////////////////Interpolative code
 			Interpolative(input[i],output[i],number[i]);
 		}
@@ -98,27 +93,37 @@ public class compression {
 		System.out.println();
 	}
 	public static void Golomb(int[] input,byte[] output,int[] number){
-		BitUtils.pos=0;
-		BitUtils.outpos=1;
+		//编码
 		int inpos = 0;
-		int m = 4;
+		int m = 5;
 		output[0]=(byte) m;
+		output[1]=(byte) Utils.binary_length(input.length);
+		BitUtils.pos=0;
+		BitUtils.outpos=2;
+		BitUtils.bitWrite(output, input.length);
+		output[BitUtils.outpos] <<= 8-BitUtils.pos;
+		BitUtils.pos=0;
+		BitUtils.outpos+=1;
 		for(inpos = 0; inpos < input.length;inpos++){
 			Golomb.Encode(input[inpos],m,output);
 		}
 		output[BitUtils.outpos] <<= 8-BitUtils.pos;
-		output[BitUtils.outpos] |= (1<<8-BitUtils.pos )- 1;
 		System.out.println("Golomb编码性能："+8*BitUtils.outpos+"  Bits");
-		byte[] code = Arrays.copyOf(output, BitUtils.outpos+1);
-		int n = code[0];
+		//解码
+		int n = output[0];
+		int amount_length = output[1];
+		BitUtils.pos=0;
+		BitUtils.outpos=2;
+		int amount = BitUtils.bitRead(output, amount_length); 
 		int num = 0;
 		BitUtils.pos=0;
-		BitUtils.outpos=1;
+		BitUtils.outpos+=1;
 		BitUtils.inpos = 0;
-		while(inpos < 65535){
-			num=Golomb.Decode(code,n);
+		while(inpos < amount){
+			num=Golomb.Decode(output,n);
 			number[BitUtils.inpos++] = num;
 		}
+		//判断解码正确
 		System.out.println("Golomb解码完成,如有解码错误信息，将在下方显示。");
 		System.out.println();
 		for(int j = 0;j< number.length;j++){
@@ -128,27 +133,37 @@ public class compression {
 		System.out.println();
 	}
 	public static void Rice(int[] input,byte[] output,int[] number){
-		BitUtils.pos=0;
-		BitUtils.outpos=1;
+		//编码
 		int inpos = 0;
 		int m = 4;
 		output[0]=(byte) m;
+		output[1]=(byte) Utils.binary_length(input.length);
+		BitUtils.pos=0;
+		BitUtils.outpos=2;
+		BitUtils.bitWrite(output, input.length);
+		output[BitUtils.outpos] <<= 8-BitUtils.pos;
+		BitUtils.pos=0;
+		BitUtils.outpos+=1;
 		for(inpos = 0; inpos < input.length;inpos++){
 			Rice.Encode(input[inpos],m,output);
 		}
 		output[BitUtils.outpos] <<= 8-BitUtils.pos;
-		output[BitUtils.outpos] |= (1<<8-BitUtils.pos )- 1;
 		System.out.println("Rice编码性能："+8*BitUtils.outpos+"  Bits");
-		byte[] code = Arrays.copyOf(output, BitUtils.outpos+1);
-		int n = code[0];
+		//解码
+		int n = output[0];
+		int amount_length = output[1];
+		BitUtils.pos=0;
+		BitUtils.outpos=2;
+		int amount = BitUtils.bitRead(output, amount_length); 
 		int num = 0;
 		BitUtils.pos=0;
-		BitUtils.outpos=1;
+		BitUtils.outpos+=1;
 		BitUtils.inpos = 0;
-		while(inpos < 65535){
-			num=Rice.Decode(code,n);
+		while(inpos < amount){
+			num=Rice.Decode(output,n);
 			number[BitUtils.inpos++] = num;
 		}
+		//判断解码正确
 		System.out.println("Rice解码完成,如有解码错误信息，将在下方显示。");
 		System.out.println();
 		for(int j = 0;j< number.length;j++){
@@ -158,31 +173,45 @@ public class compression {
 		System.out.println();
 	}
 	public static void Interpolative(int[] input,byte[] output,int[] number){
+		//编码
 		int high = Datatest.max;
 		int low = 1;
 		int amount = Datatest.amount;
-		output[0] = (byte) Utils.binary_length(high);
+		output[0] = (byte) Utils.binary_length(amount);
 		BitUtils.pos=0;
 		BitUtils.outpos=1;
+		BitUtils.bitWrite(output, amount);
+		output[BitUtils.outpos] <<= 8-BitUtils.pos;
+		BitUtils.pos=0;
+		BitUtils.outpos+=1;
+		output[BitUtils.outpos] = (byte) Utils.binary_length(high);
+		BitUtils.outpos+=1;
 		BitUtils.bitWrite(output, high);
 		output[BitUtils.outpos] <<= 8-BitUtils.pos;
 		BitUtils.pos=0;
-		BitUtils.outpos=5;
+		BitUtils.outpos+=1;
 		Interpolative.Encode(input,amount,low,high,output);
 		output[BitUtils.outpos] <<= 8-BitUtils.pos;
 		System.out.println("Interpolative编码性能："+8*BitUtils.outpos+"  Bits");
-		int length = output[0];
+		//解码
+		int amount_length = output[0];
 		BitUtils.pos=0;
 		BitUtils.outpos=1;
-		int high_read = BitUtils.bitRead(output, length);
+		int amount_read = BitUtils.bitRead(output, amount_length);
+		BitUtils.outpos+=1;
+		int high_length = output[BitUtils.outpos];
 		BitUtils.pos=0;
-		BitUtils.outpos=5;
+		BitUtils.outpos+=1;
+		int high_read =  BitUtils.bitRead(output, high_length);
+		BitUtils.pos=0;
+		BitUtils.outpos+=1;
 		BitUtils.inpos = 0;
 		while(true){
-			Interpolative.Decode(Datatest.amount, 1, high_read, number, output);
+			Interpolative.Decode(amount_read, 1, high_read, number, output);
 			Arrays.sort(number);
 			break;
 		}
+		//判断解码结果
 		System.out.println("Interpolative解码完成,如有解码错误信息，将在下方显示。");
 		System.out.println();
 		for(int j = 0;j< number.length;j++){

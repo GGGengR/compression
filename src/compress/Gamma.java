@@ -10,7 +10,6 @@ public class Gamma {
 		code = Unary.Encode(length);
 		int offset = Utils.removeMSB(number);
 		code = code << length-1 | offset;
-//		System.out.println(Integer.toBinaryString(code));
 		BitUtils.bitWrite(output, code);
 	}
 	public static int Encode(int number){
@@ -31,19 +30,6 @@ public class Gamma {
 		}
 		offset =BitUtils.bitRead(output, index-2);
 		number = Utils.addMSB(offset,index-2);
-		return number;
-	}
-	public static int Decode(int num){
-		int offset = 1;
-		int num_binary_length = Utils.binary_length(num);
-		int index = num_binary_length;
-		int number = 0;
-		while(offset != 0){
-			offset = num>> --index & 1;
-		}
-		index = num_binary_length-index-2;
-		offset = num & (1<<index)-1;
-		number = Utils.addMSB(offset,index);
 		return number;
 	}
 }
