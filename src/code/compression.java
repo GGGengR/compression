@@ -16,9 +16,9 @@ public class compression {
 		int[][] number = new int[input.length][input[0].length];
 		for(int i = 0 ; i < input.length ; i++){
 			for(int j = input[i].length-1;j > 0;j--)
-				d_gap[i][j] = input[i][j] - input[i][j-1];          // d-gap
+				d_gap[i][j] = input[i][j] - input[i][j-1];// d-gap
 			d_gap[i][0]=input[i][0];
-			//////////////////////////////////////////////////////////////////Gamma code
+			////////////////////////////////////////////////////////////////Gamma code
 			Gamma(d_gap[i],output[i],number[i]);
 			////////////////////////////////////////////////////////////////////Delta code
 			Delta(d_gap[i],output[i],number[i]);
