@@ -11,12 +11,17 @@ import code.Utils;
 public class Unary {
 	public static int Encode(int number){
 		int code=0;
+		if(number > 30){
+			System.out.print("It's too big!!! /BYE" + number);
+			System.exit(0);
+		}
 		if(number ==0)
 			return code;
 		code = (1 << number) - 1; 
 		code <<= 1 ;
 		return code;
 	}
+	
 	public static int Decode(int number){
 		if(number ==0)
 			return 0;

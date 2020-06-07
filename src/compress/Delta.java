@@ -5,12 +5,10 @@ import code.Utils;
 
 public class Delta {
 	public static void Encode(int number,byte[] output){
-		int code = 0;
 		int length = Utils.binary_length(number);
-		code = Gamma.Encode(length);
+		Gamma.Encode(length,output);
 		int offset = Utils.removeMSB(number);
-		code = code << length-1 | offset;
-		BitUtils.bitWrite(output, code);
+		BitUtils.bitWrite(output, offset,length-1);
 	}
 	
 	public static int Decode(byte[] output){

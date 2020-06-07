@@ -1,6 +1,5 @@
 package code;
 
-import java.util.Random;
 import dataSet.ClusteredDataGenerator;
 public class Datatest {
 //	public static int[][] creat() {         //随机数生成，二维数组[5][65535],递增
@@ -29,6 +28,6 @@ public class Datatest {
 		 }
 		 return randomNumbers;
 	}
-	public static int max = 100000;
+	public static int max = 1000000;
 	public static int amount = 65535;
 }

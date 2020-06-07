@@ -245,7 +245,47 @@ public class test {
 //			for(int j = 0;j<input[i].length;j++)
 //				if(input[i][j] - input[i][j++] ==1)
 //					System.out.print(k++);
-		byte[] code = new byte[24];
-		BitUtils.bitWrite(code, 1024);
+//		byte[] code = new byte[24];
+//		BitUtils.bitWrite(code, 1024);
+//		int[] number = new int[1024];
+//		int[][] input = Datatest.creat();      //input[5][50]
+//		int[][] d_gap = new int[input.length][input[0].length];
+//		
+//		long length = 0;
+//		for(int m =2;m<100;m++){
+//			length = 0;
+//			for(int i = 0;i<input.length;i++){
+//				for(int j = input[i].length-1;j > 0;j--)
+//					d_gap[i][j] = input[i][j] - input[i][j-1];// d-gap
+//				d_gap[i][0]=input[i][0];
+//				for(int j = 0;j<d_gap[i].length;j++)
+//					length += Golomb.Encode(d_gap[i][j], m);
+//			
+//		
+//			}
+//			System.out.println(length+" "+m);
+//		}
+//		for(int i =1;i<20;i++){
+//			System.out.print(i+" "+Utils.log_up(i));
+//			System.out.println();
+//		}
+		BitUtils.inpos=0;
+		BitUtils.outpos=0;
+		BitUtils.pos=0;
+				
+		byte[] output = new byte[20];
+		Golomb.Encode(1,2, output);
+		System.out.println(BitUtils.pos);
+		for(int i = 0;i<=BitUtils.outpos;i++){
+			System.out.print(output[i]>>7 & 1);
+			System.out.print(output[i]>>6 & 1);
+			System.out.print(output[i]>>5 & 1);
+			System.out.print(output[i]>>4 & 1);
+			System.out.print(output[i]>>3 & 1);
+			System.out.print(output[i]>>2 & 1);
+			System.out.print(output[i]>>1 & 1);
+			System.out.print(output[i] & 1);
+			System.out.println();
+		}
 	}
 }

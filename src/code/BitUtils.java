@@ -47,7 +47,7 @@ public class BitUtils {
 				}	
 			}
 	}
-	
+
 	public static int bitRead(byte[] code,int length ){
 		int index =0;
 		int number = 0;

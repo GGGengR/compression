@@ -18,13 +18,18 @@ public class Utils {
 		return number;
 	}
 	public static int log_down(int value) {     //以2 为底log取下限
-		int base = 2;
-		return (int) ( Math.log(value)/Math.log(base));
+		if(value == 0)
+			System.exit(0);
+		int length= binary_length(value)-1;
+		return length;
 	}
 	public static int log_up(int value) {     //以2 为底log取上限
-		int base = 2;
-		int log = (int) Math.ceil( ( Math.log(value)/Math.log(base)));
-		return log;
+		if(value == 0)
+			System.exit(0);
+		int length= binary_length(value);
+		if((value & value-1)==0)
+			length -= 1;
+		return length;
 	}
 	public static int binary_length(int number){    //求int数字的二进制位数
 		int length = 0;
@@ -36,6 +41,18 @@ public class Utils {
 		}
 		return length;
 	}
+	
+	public static int binary_length_long(long number){    //求long数字的二进制位数
+		int length = 0;
+		if(number == 0)
+			length = 1;
+		while(number != 0){
+			number = number >> 1;
+			length++;
+		}
+		return length;
+	}
+	
 	public static int removeMSB(int number){      //去除最高位
 		int length = binary_length(number);
 		int code = number & (1<<length-1)-1;
@@ -55,6 +72,15 @@ public class Utils {
 	public static boolean isPowerOf2(int number){
 		boolean bool = (number&(number-1)) == 0;
 		return bool;
+	}
+	public static int toBePowerOf2(int number){ //寻找最接近number的2的整次幂
+		int length = binary_length(number);
+		int offset = (number >> length-2) & 1;
+		if(offset == 0)
+			number = 1 << length-1;
+		else
+			number = 1 << length;
+		return number;
 	}
 	public static void print(int[] number){
 		for(int i = 0;i<number.length;i++)

@@ -1,6 +1,7 @@
 package code;
 
 import java.util.Arrays;
+import java.util.Random;
 
 import compress.Delta;
 import compress.Gamma;
@@ -10,7 +11,7 @@ import compress.Interpolative;
 
 public class compression {
 	public static void main(String[] args) {
-		int[][] input = Datatest.creat();      //input[5][50]
+		int[][] input = Datatest.creat();      //input[5][65535]
 		byte[][] output = new byte[input.length][input[0].length * 4];
 		int[][] d_gap = new int[input.length][input[0].length];
 		int[][] number = new int[input.length][input[0].length];
@@ -18,15 +19,22 @@ public class compression {
 			for(int j = input[i].length-1;j > 0;j--)
 				d_gap[i][j] = input[i][j] - input[i][j-1];// d-gap
 			d_gap[i][0]=input[i][0];
-			////////////////////////////////////////////////////////////////Gamma code
+			//////////////////////////////////////////////////////////////Gamma code
 			Gamma(d_gap[i],output[i],number[i]);
 			////////////////////////////////////////////////////////////////////Delta code
 			Delta(d_gap[i],output[i],number[i]);
-			///////////////////////////////////////////////////////////////////////Golomb code
-			Golomb(d_gap[i],output[i],number[i]);
+			/////////////////////////////////////////////////////////////////////Golomb code
+			int m =0;
+			if(Datatest.amount > Datatest.max/2)
+				m = Utils.log_down(Datatest.max/Datatest.amount) + 1 ;
+			else
+				m = Utils.log_down(Datatest.max/Datatest.amount) ;
+			Golomb(d_gap[i],output[i],number[i],m);
 			///////////////////////////////////////////////////////////////////////Rice code
-			Rice(d_gap[i],output[i],number[i]);
-			////////////////////////////////////////////////////////////////////////Interpolative code
+			if(!Utils.isPowerOf2(m))
+				m = Utils.toBePowerOf2(m);
+			Rice(d_gap[i],output[i],number[i],m);
+			//////////////////////////////////////////////////////////////////////Interpolative code
 			Interpolative(input[i],output[i],number[i]);
 		}
 	}
@@ -39,6 +47,8 @@ public class compression {
 		}
 		output[BitUtils.outpos] <<= 8-BitUtils.pos;
 		System.out.println("Gamma±àÂëÐÔÄÜ£º"+8*BitUtils.outpos+"  Bits");
+		double BPI = (double)8*BitUtils.outpos/Datatest.amount;
+		System.out.println("Gamma±àÂëBPI£º"+BPI+"  bits per integer");
 		BitUtils.pos=0;
 		BitUtils.outpos=0;
 		BitUtils.inpos = 0;
@@ -70,6 +80,8 @@ public class compression {
 		}
 		output[BitUtils.outpos] <<= 8-BitUtils.pos;
 		System.out.println("Delta±àÂëÐÔÄÜ£º"+8*BitUtils.outpos+"  Bits");
+		double BPI = (double)8*BitUtils.outpos/Datatest.amount;
+		System.out.println("Delta±àÂëBPI£º"+BPI+"  bits per integer");
 		BitUtils.pos=0;
 		BitUtils.outpos=0;
 		BitUtils.inpos = 0;
@@ -92,10 +104,9 @@ public class compression {
 		}
 		System.out.println();
 	}
-	public static void Golomb(int[] input,byte[] output,int[] number){
+	public static void Golomb(int[] input,byte[] output,int[] number,int m){
 		//±àÂë
 		int inpos = 0;
-		int m = 5;
 		output[0]=(byte) m;
 		output[1]=(byte) Utils.binary_length(input.length);
 		BitUtils.pos=0;
@@ -109,6 +120,8 @@ public class compression {
 		}
 		output[BitUtils.outpos] <<= 8-BitUtils.pos;
 		System.out.println("Golomb±àÂëÐÔÄÜ£º"+8*BitUtils.outpos+"  Bits");
+		double BPI = (double)8*BitUtils.outpos/Datatest.amount;
+		System.out.println("Golomb±àÂëBPI£º"+BPI+"  bits per integer");
 		//½âÂë
 		int n = output[0];
 		int amount_length = output[1];
@@ -119,7 +132,7 @@ public class compression {
 		BitUtils.pos=0;
 		BitUtils.outpos+=1;
 		BitUtils.inpos = 0;
-		while(inpos < amount){
+		while(BitUtils.inpos < amount){
 			num=Golomb.Decode(output,n);
 			number[BitUtils.inpos++] = num;
 		}
@@ -132,10 +145,9 @@ public class compression {
 		}
 		System.out.println();
 	}
-	public static void Rice(int[] input,byte[] output,int[] number){
+	public static void Rice(int[] input,byte[] output,int[] number,int m){
 		//±àÂë
 		int inpos = 0;
-		int m = 4;
 		output[0]=(byte) m;
 		output[1]=(byte) Utils.binary_length(input.length);
 		BitUtils.pos=0;
@@ -149,6 +161,8 @@ public class compression {
 		}
 		output[BitUtils.outpos] <<= 8-BitUtils.pos;
 		System.out.println("Rice±àÂëÐÔÄÜ£º"+8*BitUtils.outpos+"  Bits");
+		double BPI = (double)8*BitUtils.outpos/Datatest.amount;
+		System.out.println("Rice±àÂëBPI£º"+BPI+"  bits per integer");
 		//½âÂë
 		int n = output[0];
 		int amount_length = output[1];
@@ -159,7 +173,7 @@ public class compression {
 		BitUtils.pos=0;
 		BitUtils.outpos+=1;
 		BitUtils.inpos = 0;
-		while(inpos < amount){
+		while(BitUtils.inpos < amount){
 			num=Rice.Decode(output,n);
 			number[BitUtils.inpos++] = num;
 		}
@@ -193,6 +207,8 @@ public class compression {
 		Interpolative.Encode(input,amount,low,high,output);
 		output[BitUtils.outpos] <<= 8-BitUtils.pos;
 		System.out.println("Interpolative±àÂëÐÔÄÜ£º"+8*BitUtils.outpos+"  Bits");
+		double BPI = (double)8*BitUtils.outpos/Datatest.amount;
+		System.out.println("Interpolative±àÂëBPI£º"+BPI+"  bits per integer");
 		//½âÂë
 		int amount_length = output[0];
 		BitUtils.pos=0;
